@@ -5,19 +5,19 @@ import ExpenseDetailModal from "./ExpenseModel";
 const ExpenseList = ({
   currentUser,
   expenseList,
-  settled = false,
-  approved = false,
+  settled ,
+  approved ,
 }) => {
   const [showExpenseDetail, setShowExpenseDetail] = useState(false);
   const [selectedExpense, setSelectedExpense] = useState();
-
+  console.log(settled, "settled");
+  console.log(approved, "approved");
   return (
     <>
       {expenseList && expenseList.length > 0 ? (
         <div className="mt-2 divide-y overflow-y-auto rounded border shadow">
           {expenseList.map((expense) => (
             <div
-              key={expense._id}
               className=" grid grid-cols-3 items-center px-3 py-1 hover:cursor-pointer hover:bg-gray-50 sm:grid-cols-5"
               onClick={() => {
                 setShowExpenseDetail(true);
@@ -74,7 +74,7 @@ const ExpenseList = ({
                       expense?.membersBalance
                         ?.find(
                           (member) =>
-                            member?.memberId?.toString() == currentUser._id
+                            member?.memberId?.toString() === currentUser._id
                         )
                         ?.balance.split("-")[1]
                     }

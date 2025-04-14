@@ -72,42 +72,54 @@ const GroupDetail = () => {
   }, [groupId]);
 
   const fetchExpenses = async (groupId) => {
-    setLoading(true);
+    setLoading(true);  // Start loading state
     try {
       if (!groupId) return;
+
+      // Fetch expenses from backend
       const result = await axios.get(
         `http://localhost:4000/expense/group/${groupId}/member/${currentUser._id}`
       );
-      if (result) {
-        const { activeExpenses, settledExpenses, approvedExpenses } =
-          result.data;
+
+      // Check if result contains data
+      if (result && result.data) {
+        const { activeExpenses, settledExpenses, approvedExpenses } = result.data;
+
+        // Set expenses lists (if available)
         if (activeExpenses || settledExpenses || approvedExpenses) {
           setExpenseList(activeExpenses || []);
           setSettledExpenseList(settledExpenses || []);
           setapprovedExpenseList(approvedExpenses || []);
+          
+          // Log data to verify its structure
+          console.log("Active Expenses:", activeExpenses);
+          console.log("Settled Expenses:", settledExpenses);
+          console.log("Approved Expenses:", approvedExpenses);
         }
-        const temp = activeExpenses;
-        let data = [];
-        temp.forEach((element) => {
-          data.push({
-            transactionId: element._id,
-            category: element.category,
-            description: element.description,
-            paidBy: element.paidBy.name,
-            date: element.date,
-            NumberMembers: element.membersBalance.length,
-            NumberSettledMembers: element.settledMembers.length,
-            isSettled: element.isSettled,
+
+        // Map the active expenses for export data
+        let exportData = [];
+        activeExpenses.forEach((expense) => {
+          exportData.push({
+            transactionId: expense._id,
+            category: expense.category,
+            description: expense.description,
+            paidBy: expense.paidBy.name, // Assuming 'paidBy' contains the user object
+            date: expense.date,
+            NumberMembers: expense.membersBalance.length,
+            NumberSettledMembers: expense.settledMembers.length,
+            isSettled: expense.isSettled,
           });
         });
-        setExportData(data);
+        setExportData(exportData);  // Set the export data
       }
     } catch (err) {
-      console.log(err);
+      console.error("Error fetching expenses:", err);
     } finally {
-      setLoading(false);
+      setLoading(false);  // End loading state
     }
-  };
+};
+
 
   // const fetchSimplifyDebts = async (groupId) => {
   //     try {
@@ -137,11 +149,10 @@ const GroupDetail = () => {
   // }
 
   useEffect(() => {
-    if (groupId) {
+    if (currentUser && currentUser._id) {
       fetchExpenses(groupId);
-      // fetchSimplifyDebts(groupId);
     }
-  }, [groupId]);
+  }, [groupId, currentUser]);
 
   const groupDeleteTitle = useMemo(() => {
     return `Delete ${group.name}`;
@@ -350,6 +361,8 @@ const GroupDetail = () => {
                         <ExpenseList
                           currentUser={currentUser}
                           expenseList={expenseList}
+                          settled={false}
+                          approved={false}
                         />
                       </>
                     ),
@@ -361,7 +374,8 @@ const GroupDetail = () => {
                         <ExpenseList
                           currentUser={currentUser}
                           expenseList={approvedExpenseList}
-                          approved
+                          approved={true}
+                          settled={false}
                         />
                       </>
                     ),
@@ -372,7 +386,8 @@ const GroupDetail = () => {
                       <ExpenseList
                         currentUser={currentUser}
                         expenseList={settledExpenseList}
-                        settled
+                        settled={true}
+                        approved={false}
                       />
                     ),
                   },

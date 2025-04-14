@@ -1,12 +1,17 @@
 const mongoose = require('mongoose');
 
 const connectDB = async () => {
-  const url = process.env.MONGO_URI;
-  mongoose.connect(url)
-    .then(() => {
-      console.log("MongoDB connected");
-    })
-    .catch((error) => console.log(error));
-}
+  try {
+    const url = "mongodb+srv://ayush890:ILIKEMANGO@cluster0.vcx1aql.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+    await mongoose.connect(url, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+    console.log("✅ MongoDB connected successfully");
+  } catch (error) {
+    console.error("❌ MongoDB connection error:", error);
+    process.exit(1); // exit process if DB connection fails
+  }
+};
 
 module.exports = connectDB;

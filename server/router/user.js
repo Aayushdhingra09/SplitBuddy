@@ -13,20 +13,17 @@ router.use(cookieParser());
 
 router.post("/signup", async (req, res) => {
   const { name, email, password, confirmpassword } = req.body;
+  console.log("ok");
   if (!name || !email || !password) {
+    console.log("heree");
     return res.status(422).json({ error: "please fill the field properly" });
   }
   try {
-    const userExist = await User.findOne({ email: email });
-    if (userExist) {
-      return res.status(422).json({ error: "user already exists" });
-    } else if (password !== confirmpassword) {
-      return res.status(422).json({ error: "password are not matching" });
-    } else {
+    
       const user = new User({ name, email, password });
       await user.save();
       res.status(201).json({ message: "User registered Successfully" });
-    }
+    
   } catch (e) {
     console.log(e);
   }
@@ -63,7 +60,7 @@ router.post("/login", async (req, res) => {
     }
     const userLogin = await User.findOne({ email: email });
     if (userLogin) {
-      const isMatch = bcrypt.compare(password, userLogin.password);
+      const isMatch = await bcrypt.compare(password, userLogin.password);
       // const token = await userLogin.generateAuthToken();
       // // console.log(token);
       // res.cookie("jwttoken", token, {

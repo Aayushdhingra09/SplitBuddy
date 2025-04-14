@@ -8,7 +8,7 @@ const Authenticate = async (req, res, next) => {
         if (!token) {
             res.status(404).send("Token not provided")
         }
-        const verifyToken = jwt.verify(token, process.env.JWT_SECRET_KEY);
+        const verifyToken = jwt.verify(token, "uJK93lskD89vmsP01zXCqMnv7WlxQ38pBzkGQxy7rVu2Fnp3");
         const rootUser = await User.findOne({ _id: verifyToken._id, "tokens.token": token });
         if (!rootUser) {
             res.status(404).send("Token not provided")

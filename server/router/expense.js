@@ -79,44 +79,93 @@ router.post("/addFriendExpense", async (req, res) => {
   res.send(expense);
 });
 
-//Get Expense
+
+
 router.get("/group/:groupId/member/:memberId", async (req, res) => {
-  const groupId = req.params.groupId;
-  const memberId = req.params.memberId;
-  const expenses = await GroupExpense.find({
-    group: groupId,
-  }).populate("paidBy", {
-    name: 1,
-    _id: 1,
-  });
+  const { groupId, memberId } = req.params;
 
-  const activeExpenses = expenses.filter((expense) => {
-    return (
-      expense.approvedBalance.indexOf(memberId) === -1 &&
-      !expense.isApproved &&
-      expense.settledMembers.indexOf(memberId) === -1 &&
-      !expense.isSettled
-    );
-  });
+  try {
+    let expenses = await GroupExpense.find({ group: groupId }).populate("paidBy", {
+      name: 1,
+      _id: 1,
+      email: 1
+    });
 
-  const approvedExpenses = expenses.filter((expense) => {
-    return (
-      expense.approvedBalance.indexOf(memberId) > -1 ||
-      (expense.isApproved &&
-        expense.settledMembers.indexOf(memberId) === -1 &&
-        !expense.isSettled)
-    );
-  });
-  const settledExpenses = expenses.filter((expense) => {
-    return expense.settledMembers.indexOf(memberId) > -1 || expense.isSettled;
-  });
+    // Filter Active Expenses
+    const activeExpenses = [];
 
-  res.send({
-    activeExpenses,
-    approvedExpenses,
-    settledExpenses,
-  });
+    for (let i = 0; i < expenses.length; i++) {
+      const expense = expenses[i];
+      const isApproved = expense.approvedBalance.includes(memberId);
+
+      if (expense.paidBy?._id?.toString() === memberId) {
+        if (expense.membersBalance.length - 1 !== expense.approvedBalance.length) {
+          activeExpenses.push(expense);
+        }
+      } else {
+        if (!isApproved) activeExpenses.push(expense);
+      }
+    }
+
+    // Filter Approved Expenses
+    const approvedExpenses = [];
+
+    for (let i = 0; i < expenses.length; i++) {
+      const expense = expenses[i];
+      console.log(expense.paidBy._id+ " here " +memberId)
+      if (expense.paidBy._id == memberId) {
+        console.log("here")
+        for (let j = 0; j < expense.approvedBalance.length; j++) {
+          const approvedMemberId = expense.approvedBalance[j];
+          const isSettledMember = expense.settledMembers.includes(approvedMemberId);
+
+          if (!isSettledMember) {
+            const user = await User.findById(approvedMemberId).select("name _id email");
+            approvedExpenses.push({ ...expense.toObject?.() ?? expense, from: user });
+          }
+        }
+      } else {
+        const isApproved2 = expense.approvedBalance.includes(memberId);
+        const isSettled = expense.settledMembers.includes(memberId);
+        if (isApproved2 && !isSettled) {
+          approvedExpenses.push(expense);
+        }
+      }
+    }
+
+    // Filter Settled Expenses
+    const settledExpenses = [];
+
+    for (let i = 0; i < expenses.length; i++) {
+      const expense = expenses[i];
+      const isSettled2 = expense.settledMembers.includes(memberId);
+
+      if (expense.paidBy._id == memberId) {
+        console.log("allah ke naam pe dede")
+        for (let j = 0; j < expense.settledMembers.length; j++) {
+          const settledId = expense.settledMembers[j];
+          const user = await User.findById(settledId).select("name _id email");
+          settledExpenses.push({ ...expense.toObject?.() ?? expense, from: user });
+        }
+      } else {
+        if (isSettled2) settledExpenses.push(expense);
+      }
+    }
+
+    res.send({
+      activeExpenses,
+      approvedExpenses,
+      settledExpenses
+    });
+  } catch (err) {
+    console.error("Error fetching expenses:", err);
+    res.status(500).send("Server Error");
+  }
 });
+
+
+
+
 
 //Get Expense By group Id
 router.post("/getGroupExpenseBydate", async (req, res) => {
@@ -207,55 +256,70 @@ router.get("/user/:userId", async (req, res) => {
 
 //Settle Expense
 router.post("/:expenseId/settle/:memberId", async (req, res) => {
-  const expenseId = req.params.expenseId;
-  const memberId = req.params.memberId;
-  if (!expenseId || !memberId) return res.status(404).send("no id received");
+  const { expenseId, memberId } = req.params;
+
+  if (!expenseId || !memberId) {
+    return res.status(404).send("No ID received");
+  }
+
   const expense = await GroupExpense.findById(expenseId);
   if (!expense) {
     return res.status(404).send("Expense not found");
   }
-  const index = expense.settledMembers.indexOf(memberId);
-  if (index > -1) {
-    expense.settledMembers.splice(index, 1);
-  } else {
+
+  if (!expense.settledMembers.includes(memberId)) {
     expense.settledMembers.push(memberId);
   }
-  if (
-    expense.settledMembers.length ===
-    expense.membersBalance.filter(
-      (member) => member.memberId.toString() !== expense.paidBy.toString()
-    ).length
-  ) {
-    expense.isSettled = true;
-  }
+
+  const allMembersExceptPayer = expense.membersBalance.filter(
+    (member) => member.memberId.toString() !== expense.paidBy.toString()
+  ).map((member) => member.memberId.toString());
+
+  const settledSet = new Set(expense.settledMembers.map(id => id.toString()));
+
+  const isFullySettled = allMembersExceptPayer.every(memberId =>
+    settledSet.has(memberId)
+  );
+
+  expense.isSettled = isFullySettled;
+
   await expense.save();
   return res.send(expense);
 });
 
+
 router.post("/:expenseId/approve/:memberId", async (req, res) => {
-  const expenseId = req.params.expenseId;
-  const memberId = req.params.memberId;
-  if (!expenseId || !memberId) return res.status(404).send("no id received");
-  const expense = await GroupExpense.findById(expenseId);
-  if (!expense) {
-    return res.status(404).send("Expense not found");
-  }
-  const index = expense.approvedBalance.indexOf(memberId);
-  if (index > -1) {
-    expense.approvedBalance.splice(index, 1);
-  } else {
-    expense.approvedBalance.push(memberId);
-  }
-  if (
-    expense.approvedBalance.length ===
-    expense.membersBalance.filter(
+  const { expenseId, memberId } = req.params;
+
+  if (!expenseId || !memberId) return res.status(404).send("No ID received");
+
+  try {
+    const expense = await GroupExpense.findById(expenseId);
+    if (!expense) return res.status(404).send("Expense not found");
+
+    const alreadyApproved = expense.approvedBalance.some(
+      (id) => id.toString() === memberId
+    );
+
+    if (alreadyApproved) {
+      expense.approvedBalance = expense.approvedBalance.filter(
+        (id) => id.toString() !== memberId
+      );
+    } else {
+      expense.approvedBalance.push(memberId);
+    }
+
+    const nonPayerMembers = expense.membersBalance.filter(
       (member) => member.memberId.toString() !== expense.paidBy.toString()
-    ).length
-  ) {
-    expense.isApproved = true;
+    );
+
+    expense.isApproved = expense.approvedBalance.length === nonPayerMembers.length;
+
+    await expense.save();
+    res.send(expense);
+  } catch (err) {
+    res.status(500).send("Server Error");
   }
-  await expense.save();
-  return res.send(expense);
 });
 
 //Settle Friend Expense

@@ -55,6 +55,7 @@ const ExpenseGroupReport = () => {
   const getAllTransactions = async () => {
     try {
       setLoading(true);
+      console.log(type);
       const res = await axios.post("/expense/getGroupExpenseByDate", {
         userid: id,
         frequency,

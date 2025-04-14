@@ -13,6 +13,9 @@ const ExpenseDetailModal = ({
   currentUser,
 }) => {
   const handleApproveExpense = async () => {
+    console.log("I am here");
+    console.log(expense._id);
+    console.log(currentUser._id);
     const response = await axios.post(
       `http://localhost:4000/expense/${expense._id}/approve/${currentUser._id}`
     );
@@ -22,9 +25,9 @@ const ExpenseDetailModal = ({
       window.location.reload();
     }
   };
-  const handleSettleExpense = async () => {
+  const handleSettleExpense = async (incoming_id) => {
     const response = await axios.post(
-      `http://localhost:4000/expense/${expense._id}/settle/${currentUser._id}`
+      `http://localhost:4000/expense/${expense._id}/settle/${incoming_id}`
     );
     if (response) {
       alert("Expense Approved", "success");
@@ -63,7 +66,9 @@ const ExpenseDetailModal = ({
       fetchUser();
     }
   }, [expense]);
-
+  /*if(approved)
+    console.log(expense.from.name);
+  */
   return (
     <>
       {expense ? (
@@ -107,7 +112,7 @@ const ExpenseDetailModal = ({
                           <p className="mt-2 leading-5 text-gray-500">
                             Paid by{" "}
                             <span className="font-medium text-gray-600">
-                              {expense.paidBy.name}
+                            {expense.paidBy.name + (approved && expense.paidBy._id === currentUser._id ? " to " + expense.from.name : "")}
                             </span>
                           </p>
                         </div>
@@ -200,7 +205,7 @@ const ExpenseDetailModal = ({
                     )}
                     {expense.paidBy._id === currentUser._id && approved && (
                       <div className="mt-3 flex justify-end border-t bg-gray-100 p-3">
-                        <button type="success" onClick={handleSettleExpense}>
+                        <button type="success" onClick={() => handleSettleExpense(expense.from._id)}>
                           Approve
                         </button>
                       </div>
