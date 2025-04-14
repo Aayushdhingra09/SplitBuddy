@@ -56,7 +56,7 @@ const ExpenseGroupReport = () => {
     try {
       setLoading(true);
       console.log(type);
-      const res = await axios.post("/expense/getGroupExpenseByDate", {
+      const res = await axios.post(`/expense/getGroupExpenseByDate/${currentUser}`, {
         userid: id,
         frequency,
         selectedDate,

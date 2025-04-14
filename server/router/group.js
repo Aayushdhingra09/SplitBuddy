@@ -104,7 +104,7 @@ router.delete("/:groupId/member/:memberId", async (req, res) => {
         group.members.splice(index, 1);
         await group.save();
     }
-
+    /*
     const members = await User.find(
         { _id: { $in: group.members } },
         { name: 1, _id: 1 }
@@ -115,7 +115,7 @@ router.delete("/:groupId/member/:memberId", async (req, res) => {
     const updatedMemberBalances = await updateMemberBalances(
         expenses,
         members
-    );
+    ); 
 
     await Promise.all(
         updatedMemberBalances.map(async (memberBalances) => {
@@ -125,6 +125,7 @@ router.delete("/:groupId/member/:memberId", async (req, res) => {
             );
         })
     );
+    */
     res.send(group);
 }
 );
@@ -143,7 +144,7 @@ router.post("/:groupId/member/:memberId", async (req, res) => {
         { name: 1, _id: 1 }
     ).lean();
 
-
+    /*
     const expenses = await GroupExpense.find({ group: groupId });
 
     const updatedMemberBalances = await updateMemberBalances(
@@ -159,7 +160,7 @@ router.post("/:groupId/member/:memberId", async (req, res) => {
             );
         })
     );
-
+    */
     await group.save();
     res.send(group);
 });

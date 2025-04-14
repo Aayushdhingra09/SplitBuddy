@@ -170,11 +170,14 @@ router.get("/group/:groupId/member/:memberId", async (req, res) => {
 
 
 //Get Expense By group Id
-router.post("/getGroupExpenseBydate", async (req, res) => {
+router.post("/getGroupExpenseBydate/:memberId", async (req, res) => {
+  // Extract the memberId from the route parameters
+  const memberId2 = req.params.memberId;
+  
   try {
-    const { frequency, selectedDate, type } = req.body;
+    const { frequency, selectedDate, type, userid } = req.body;
     console.log(req.body);
-    // console.log(moment().subtract(Number(frequency), "d").toDate());
+    
     const transections = await GroupExpense.find({
       ...(frequency !== "custom"
         ? {
@@ -188,15 +191,17 @@ router.post("/getGroupExpenseBydate", async (req, res) => {
               $lte: selectedDate[1],
             },
           }),
-      group: req.body.userid,
+      group: userid, // Ensure you're sending the userid field from the frontend
       ...(type !== "all" && { type }),
     });
+    
     res.status(200).json(transections);
   } catch (error) {
-    console.log(error);
+    console.error(error);
     res.status(500).json(error);
   }
 });
+
 
 router.post("/getFriendExpenseBydate", async (req, res) => {
   try {
