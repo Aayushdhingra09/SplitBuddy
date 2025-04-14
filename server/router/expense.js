@@ -14,7 +14,7 @@ const FriendExpense = require("../modal/FriendExpense");
 
 // Add Expense
 router.post("/addExpense", async (req, res) => {
-  const { groupId, paidBy, category, description, amount, date } = req.body;
+  const { groupId, paidBy, category, description, amount, date, selectedMembers } = req.body;
   if (!groupId || !paidBy || !amount) {
     return res.status(404).send("Fill all the neccessary details");
   }
@@ -24,7 +24,7 @@ router.post("/addExpense", async (req, res) => {
   }
 
   const members = await User.find(
-    { _id: { $in: group.members } },
+    { _id: { $in: selectedMembers } },
     { name: 1, _id: 1 }
   ).lean();
 
@@ -97,13 +97,15 @@ router.get("/group/:groupId/member/:memberId", async (req, res) => {
     for (let i = 0; i < expenses.length; i++) {
       const expense = expenses[i];
       const isApproved = expense.approvedBalance.includes(memberId);
-
+      const isPresent = expense.membersBalance.some(
+        (member) => member.memberId.toString() === memberId
+      );
       if (expense.paidBy?._id?.toString() === memberId) {
         if (expense.membersBalance.length - 1 !== expense.approvedBalance.length) {
           activeExpenses.push(expense);
         }
       } else {
-        if (!isApproved) activeExpenses.push(expense);
+        if (isPresent && !isApproved) activeExpenses.push(expense);
       }
     }
 

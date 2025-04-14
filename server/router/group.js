@@ -72,6 +72,24 @@ router.get("/:groupId", async (req, res) => {
     }
 });
 
+router.get("/:groupId/allmembers", async (req, res) => {
+    try {
+        const groupId = req.params.groupId;
+        const group = await Group.findById(groupId)
+            .populate("members", {
+                password: 0,
+            })
+            .lean({ virtuals: true });
+        if (!group?._id) {
+            res.status(404).json("Group not found");
+        }
+        
+        res.send({ ...group });
+    } catch (err) {
+        console.log(err);
+    }
+});
+
 router.delete("/:groupId/member/:memberId", async (req, res) => {
     const groupId = req.params.groupId;
     const memberId = req.params.memberId;

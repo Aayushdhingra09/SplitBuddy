@@ -10,6 +10,16 @@ import useCurrencyInfo from "../../context/useContext";
 
 const Addexpense = ({ currentUser, groupId, open = false, setOpen }) => {
   const [selectedDate, setSelectedDate] = useState("");
+  const [members, setMembers] = useState([]);
+  const [currentlySelected, setCurrentlySelected] = useState([]);
+
+  const handleCheckboxChange = (memberId) => {
+    setCurrentlySelected((prevSelected) =>
+      prevSelected.includes(memberId)
+        ? prevSelected.filter((id) => id !== memberId)
+        : [...prevSelected, memberId]
+    );
+  };
   const [data, setData] = useState({
     description: "",
     amount: "",
@@ -26,7 +36,26 @@ const Addexpense = ({ currentUser, groupId, open = false, setOpen }) => {
       paidBy: currentUser._id,
     });
   }, [groupId, currentUser]);
+  useEffect(() => {
+    const fetchGroupMembers = async () => {
+      try {
 
+        const response = await axios.get(`/group/${groupId}/allmembers`);
+        console.log(response.data.members)
+        if (response.data.members) {
+          setMembers(response.data.members);
+        }
+        console.log(members);
+        console.log("hello");
+      } catch (error) {
+        console.error("Failed to fetch group members:", error);
+      }
+    };
+
+    if (groupId) {
+      fetchGroupMembers();
+    }
+  }, [groupId]);
   const handleChange = ({ currentTarget: input }) => {
     setData({ ...data, [input.name]: input.value });
   };
@@ -76,7 +105,7 @@ const Addexpense = ({ currentUser, groupId, open = false, setOpen }) => {
       alert("Uploaded Successfully!!!");
     }
   };
-
+  
   const currencyInfo = useCurrencyInfo("inr");
 
   const options = Object.keys(currencyInfo);
@@ -88,10 +117,16 @@ const Addexpense = ({ currentUser, groupId, open = false, setOpen }) => {
   };
 
   const doSubmit = async (e) => {
+    const fullData = {
+      ...data,
+      selectedMembers: currentlySelected, // ✅ include selected users
+      date: selectedDate,
+    };
+    console.log(fullData)
     try {
       const result = await axios.post(
         "http://localhost:4000/expense/addExpense",
-        data
+        fullData
       );
       if (result.data) {
         alert("Expense Added");
@@ -107,6 +142,7 @@ const Addexpense = ({ currentUser, groupId, open = false, setOpen }) => {
     } catch (err) {
       alert(err);
     }
+    
   };
 
   return (
@@ -170,7 +206,28 @@ const Addexpense = ({ currentUser, groupId, open = false, setOpen }) => {
                       selectedDate={selectedDate}
                       onValueChange={handleDateChange}
                     />
-
+                    <div className="mt-4">
+          <p className="text-sm font-medium text-gray-700 dark:text-white mb-2">
+            Select Members
+          </p>
+          <div className="max-h-40 overflow-y-auto border rounded-md p-2 bg-gray-50 dark:bg-gray-800">
+            {members?.map((member) => (
+              <label
+                key={member._id}
+                className="flex items-center space-x-2 text-sm text-gray-800 dark:text-white"
+              >
+                {console.log("check me out")}
+                <input
+                  type="checkbox"
+                  checked={currentlySelected.includes(member._id)}
+                  onChange={() => handleCheckboxChange(member._id)}
+                  className="accent-blue-600"
+                />
+                <span>{member.name}</span>
+              </label>
+            ))}
+          </div>
+        </div>
                     <label
                       class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                       for="file_input"
