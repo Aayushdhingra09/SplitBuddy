@@ -72,7 +72,7 @@ const Friends = () => {
     try {
       setLoading(true);
       const result = await axios.get(
-        `http://localhost:4000/expense/user/${currentUser._id}`
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/expense/user/${currentUser._id}`
       );
       if (result) {
         const { activeExpenses, settledExpenses } = result.data;
@@ -126,7 +126,7 @@ const Friends = () => {
     try {
       if (friendId) {
         const result = await axios.post(
-          `http://localhost:4000/friends/${currentUser._id}/friend/${friendId}`
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/friends/${currentUser._id}/friend/${friendId}`
         );
         if (result) {
           window.location.reload();
@@ -141,7 +141,7 @@ const Friends = () => {
     if (memberId) {
       try {
         const result = await axios.delete(
-          `http://localhost:4000/friends/${currentUser._id}/friend/${memberId}`
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/friends/${currentUser._id}/friend/${memberId}`
         );
         if (result) {
           alert("Friend removed", "success");

@@ -78,7 +78,7 @@ const GroupDetail = () => {
 
       // Fetch expenses from backend
       const result = await axios.get(
-        `http://localhost:4000/expense/group/${groupId}/member/${currentUser._id}`
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/expense/group/${groupId}/member/${currentUser._id}`
       );
 
       // Check if result contains data
@@ -125,7 +125,7 @@ const GroupDetail = () => {
   //     try {
   //         if (!groupId) return;
   //         const result = await axios.get(
-  //             `http://localhost:4000/expense/simplify/${groupId}`
+  //             `${process.env.NEXT_PUBLIC_BACKEND_URL}/expense/simplify/${groupId}`
   //         );
   //         let transactions = result.data;
   //         transactions.forEach(transaction => {
@@ -162,7 +162,7 @@ const GroupDetail = () => {
     try {
       if (memberId) {
         const result = await axios.post(
-          `http://localhost:4000/group/${groupId}/member/${memberId}`
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/group/${groupId}/member/${memberId}`
         );
         if (result) {
           window.location.reload();
@@ -181,7 +181,7 @@ const GroupDetail = () => {
     }
     if (memberId) {
       const result = await axios.delete(
-        `http://localhost:4000/group/${groupId}/member/${memberId}`
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/group/${groupId}/member/${memberId}`
       );
       if (result) {
         alert("Member removed", "success");
@@ -201,7 +201,7 @@ const GroupDetail = () => {
   const handleGroupDelete = async () => {
     if (groupId) {
       const result = await axios.delete(
-        `http://localhost:4000/group/${groupId}`
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/group/${groupId}`
       );
 
       if (result.data) {

@@ -17,7 +17,7 @@ const ExpenseDetailModal = ({
     console.log(expense._id);
     console.log(currentUser._id);
     const response = await axios.post(
-      `http://localhost:4000/expense/${expense._id}/approve/${currentUser._id}`
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/expense/${expense._id}/approve/${currentUser._id}`
     );
     if (response) {
       alert("Expense settled", "success");
@@ -27,7 +27,7 @@ const ExpenseDetailModal = ({
   };
   const handleSettleExpense = async (incoming_id) => {
     const response = await axios.post(
-      `http://localhost:4000/expense/${expense._id}/settle/${incoming_id}`
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/expense/${expense._id}/settle/${incoming_id}`
     );
     if (response) {
       alert("Expense Approved", "success");
@@ -37,7 +37,7 @@ const ExpenseDetailModal = ({
   };
   const handleRevertExpense = async () => {
     const response = await axios.post(
-      `http://localhost:4000/expense/${expense._id}/revert/${currentUser._id}`
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/expense/${expense._id}/revert/${currentUser._id}`
     );
 
     if (response) {
@@ -51,7 +51,7 @@ const ExpenseDetailModal = ({
 
   async function fetchUser() {
     const result = await axios.get(
-      "http://localhost:4000/user/settledMembers",
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/user/settledMembers`,
       {
         params: {
           userIds: JSON.stringify(expense.settledMembers),

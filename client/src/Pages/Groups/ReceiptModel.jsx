@@ -18,7 +18,7 @@ const Receipt = ({ memberList, groupId, open = false, setOpen }) => {
     setLoading(true);
     try {
       const result = await axios.get(
-        `http://localhost:4000/get-files/${groupId}`
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/get-files/${groupId}`
       );
       console.log(result.data);
       setAllImage(result.data.data);
@@ -29,8 +29,8 @@ const Receipt = ({ memberList, groupId, open = false, setOpen }) => {
     }
   };
   const showPdf = (pdf) => {
-    window.open(`http://localhost:4000/files/${pdf}`, "_blank", "noreferrer");
-    // setPdfFile(`http://localhost:5000/files/${pdf}`);
+    window.open(`${process.env.NEXT_PUBLIC_BACKEND_URL}/files/${pdf}`, "_blank", "noreferrer");
+    // setPdfFile(`${process.env.NEXT_PUBLIC_BACKEND_URL}/files/${pdf}`);
   };
 
   return (

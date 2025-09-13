@@ -91,7 +91,7 @@ export default function SignUp() {
     const email = data.email;
     const name = data.name;
     try {
-      const res = await axios.post("http://localhost:3000/user/googlesignup", {
+      const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/googlesignup`, {
         email,
         name,
       });

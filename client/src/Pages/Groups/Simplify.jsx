@@ -16,7 +16,7 @@ const SimplifyDebts = ({ memberList, groupId, open = false, setOpen }) => {
       setLoading(true);
       if (!groupId) return;
       const result = await axios.get(
-        `http://localhost:4000/expense/simplify/${groupId}`
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/expense/simplify/${groupId}`
       );
       let transactions = result.data;
       transactions.forEach((transaction) => {

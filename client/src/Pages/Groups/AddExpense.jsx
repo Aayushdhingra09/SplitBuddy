@@ -95,7 +95,7 @@ const Addexpense = ({ currentUser, groupId, open = false, setOpen }) => {
     formData.append("file", file);
     formData.append("group", groupId);
     const result = await axios.post(
-      "http://localhost:4000/upload-files",
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/upload-files`,
       formData,
       {
         headers: { "Content-Type": "multipart/form-data" },
@@ -125,7 +125,7 @@ const Addexpense = ({ currentUser, groupId, open = false, setOpen }) => {
     console.log(fullData)
     try {
       const result = await axios.post(
-        "http://localhost:4000/expense/addExpense",
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/expense/addExpense`,
         fullData
       );
       if (result.data) {

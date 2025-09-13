@@ -44,7 +44,7 @@ const AddExpense = ({ currentUser, open = false, setOpen }) => {
     try {
       //   console.log(data);
       const result = await axios.post(
-        "http://localhost:4000/individual/add-expense",
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/individual/add-expense`,
         data
       );
       if (result.data) {

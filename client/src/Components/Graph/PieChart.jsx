@@ -12,7 +12,7 @@ export default function PieGraph({ currentUser }) {
     const fetchExpenses = async () => {
 
         try {
-            const result = await axios.get(`http://localhost:3000/user/expenses/${currentUser._id}`);
+            const result = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}${currentUser._id}`);
             setData([
                 { name: "Lent", value: Number(result.data.lent) },
                 { name: "Owe", value: Math.abs(+result.data.owe) },

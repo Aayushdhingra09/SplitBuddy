@@ -47,7 +47,7 @@ const Addexpense = ({ currentUser, friend, open = false, setOpen }) => {
     try {
       console.log(data);
       const result = await axios.post(
-        "http://localhost:4000/expense/addFriendExpense",
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/expense/addFriendExpense`,
         data
       );
       if (result.data) {

@@ -59,7 +59,7 @@ export default function Login() {
     }
 
     try {
-      const res = await axios.post("http://localhost:3000/user/login", {
+      const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/login`, {
         email,
         password,
       });
@@ -78,7 +78,7 @@ export default function Login() {
     var data = jwtDecode(res.credential);
     const email = data.email;
     try {
-      const res = await axios.post("http://localhost:3000/user/googlelogin", {
+      const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/googlelogin`, {
         email,
       });
       if (!res.data.error) {

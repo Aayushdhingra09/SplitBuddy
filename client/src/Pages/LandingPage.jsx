@@ -45,7 +45,7 @@ export default function LandingPage(UserDetails) {
   }, []);
   const user = UserDetails.user;
   const logout = () => {
-    window.open(`http:localhost:4000/auth/google/logout`, "_self");
+    window.open(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/google/logout`, "_self");
   };
 
   return (

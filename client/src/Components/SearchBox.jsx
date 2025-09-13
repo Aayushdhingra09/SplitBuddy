@@ -24,7 +24,7 @@ const SearchMember = ({
 
     const doSearch = async () => {
         try {
-            const result = await axios.get(`http://localhost:4000/user/getDetailsByEmail/${email}`);
+            const result = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/getDetailsByEmail/${email}`);
             if (result.data) {
                 setSearchedUser(result.data);
                 setFoundUser(true);

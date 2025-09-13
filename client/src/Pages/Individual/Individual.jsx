@@ -33,7 +33,7 @@ const Individual = () => {
     try {
       const id = currentUser._id;
       if (id) {
-        const res = await axios.get(`http://localhost:4000/individual/get-expenses/${id}`);
+        const res = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/individual/get-expenses/${id}`);
         if (res.data)
           setExpense(res.data);
         const temp = res.data;
@@ -60,7 +60,7 @@ const Individual = () => {
   const handleExpenseDelete = async (Id) => {
     if (Id) {
       const result = await axios.delete(
-        `http://localhost:4000/individual/delete-expense/${Id}`
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/individual/delete-expense/${Id}`
       );
       if (result) {
         alert("Expense deleted", "success");
