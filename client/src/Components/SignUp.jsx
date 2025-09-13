@@ -55,7 +55,7 @@ export default function SignUp() {
 
     try {
       const response = await axios.post(
-        "/user/signup",
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/user/signup`,
         {
           name,
           email,
